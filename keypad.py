@@ -10,4 +10,10 @@ class Keypad:
         for c in cols:
             GPIO.setup(c, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     def poll_buttons:
+        pass
 
+def test():
+    GPIO.setup(21, GPIO.OUT)
+    GPIO.output(21, GPIO.HIGH)
+
+test()
