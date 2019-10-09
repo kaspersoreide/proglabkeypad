@@ -1,5 +1,8 @@
 import RPi.GPIO as GPIO
 
+GPIO.setmode(GPIO.BCM)
+import time
+
 class Keypad:
     def __init__(self):
         #index mapped to GPIO-pins
@@ -9,6 +12,7 @@ class Keypad:
                         ['4', '5', '6'],
                         ['7', '8', '9'],
                         ['*', '0', '#']]
+        self.last_debounce = time.time()
         for r in self.rows:
             GPIO.setup(r, GPIO.OUT)
         for c in self.cols:
@@ -17,10 +21,20 @@ class Keypad:
         for i in range(len(self.rows)):
             GPIO.output(self.rows[i], GPIO.HIGH)
             for j in range(len(self.cols)):
+                #sleep(0.05)
                 if GPIO.input(self.cols[j]) == GPIO.HIGH:
-                    print(self.signals[i][j])
-
+                    if time.time() - self.last_debounce > 0.3:
+                        self.last_debounce = time.time()
+                        GPIO.output(self.rows[i], GPIO.LOW)
+                        return self.signals[i][j]
+            GPIO.output(self.rows[i], GPIO.LOW)
 def test():
     GPIO.setup(21, GPIO.OUT)
     GPIO.output(21, GPIO.HIGH)
 
+keypad = Keypad()
+s = ''
+while s != '#':
+    s = keypad.poll_buttons()
+    if (s):
+        print(s)
