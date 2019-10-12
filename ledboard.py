@@ -98,11 +98,11 @@ class LEDboard:
     def correct(self):
         self.disable_LEDs()
         for i in range(3):
-			self.leds_enabled[2 * i] = True
-			self.leds_enabled[2 * i + 1] = True
+	    self.leds_enabled[2 * i] = True
+	    self.leds_enabled[2 * i + 1] = True
             t = time.time()
             while time.time() - t < 0.9:
                 self.flash_LEDs()
-			self.leds_enabled[2 * i] = False
-			self.leds_enabled[2 * i + 1] = False
+	    self.leds_enabled[2 * i] = False
+	    self.leds_enabled[2 * i + 1] = False
 
