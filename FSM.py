@@ -31,6 +31,11 @@ class Signal:
     def done(signal):
         return signal =="Y"
 
+    @staticmethod
+    def hash(signal):
+        return signal == "#"
+
+
 class KPC_Agent:
 
     def __init(self):
@@ -65,7 +70,7 @@ class KPC_Agent:
         else:
             self.override_signal+="N"
 
-    def add_next_
+    def add_
 
     def validate_passcode_change(self):
         validate = True
@@ -78,7 +83,7 @@ class KPC_Agent:
             with open(self.file_name, "w+") as password_file:
                 password_file.write(self.password_buffer)
 
-    def read_password(file):
+    def read_password(self, file):
         with open(file) as password_file:
             password = password_file.read().strip()
             print(password)
@@ -99,11 +104,6 @@ class KPC_Agent:
 
 
 
-
-
-
-
-
 class FSM:
     def __init__(self, agent, state):
         self.agent = agent
@@ -111,6 +111,11 @@ class FSM:
         self.signal = None
         self.state = state.init
 
+    def setup_rules(self):
+        self.rule_list = [
+            Rule(Signal.all_symbols, State.init, State.read, KPC_Agent.init_passcode_entry),
+            Rule(Signal.all_digits, State.read, State.read, KPC_Agent.add_next),
+        ]
 
     def add_rule(self, rule):
         self.rule_list.append(rule)
