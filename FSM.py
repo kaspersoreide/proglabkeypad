@@ -1,14 +1,17 @@
 from keypad import Keypad
 from ledboard import *
+
+
 class Rule:
     def __init__(self, state, next_state, signal,  action):
         self.state = state
-        self.next_state= next_state
+        self.next_state = next_state
         self.action = action
         self.signal = signal
 
     def do_action(self):
         return self.action
+
 
 class State:
     init = 0
@@ -37,7 +40,7 @@ class Signal:
 
     @staticmethod
     def done(signal):
-        return signal =="Y"
+        return signal == "Y"
 
     @staticmethod
     def hash(signal):
@@ -45,6 +48,7 @@ class Signal:
 
 
 class KPC_Agent:
+
     def __init(self):
         self.fsm = FSM(self)
         self.keypad = Keypad()
@@ -54,12 +58,12 @@ class KPC_Agent:
         self.override_signal = None
         self.led_id = 0
         self.led_duration = 0
-        self.Legal_numbers =['0','1','2','3','4','5','6','7','8','9']
+        self.Legal_numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
     def init_passcode_entry(self):
         self.reset_agent()
         self.led.flash_LEDs()
-        #flash
+        # flash
 
     def reset_agent(self):
         self.password_buffer = ""
@@ -110,9 +114,6 @@ class KPC_Agent:
         self.led.flash_LEDs()
 
 
-    def twinkle_led(self):
-
-
     def exit_action(self):
         self.led.turn_off_LEDs()
 
@@ -123,6 +124,7 @@ class KPC_Agent:
 
 
 class FSM:
+
     def __init__(self, agent):
         self.agent = agent
         self.rule_list = []
@@ -146,7 +148,6 @@ class FSM:
             Rule(State.read_active, State.read_active, Signal.all_digits, self.agent.add_next_digit),
             Rule(State.read_active, State.active, Signal.asterisk, self.agent.verify_password_change),
             Rule(State.read_active, State.active, Signal.all_symbols, self.agent.reset_agent),
-
 
 
 
