@@ -47,6 +47,7 @@ class LEDboard:
             self.leds_enabled[i] = True
             while time.time() - t < 0.7:
                 self.flash_LEDs()
+        self.disable_LEDs()
 
     def wrong(self):
         self.disable_LEDs()
@@ -56,5 +57,5 @@ class LEDboard:
                 self.leds_enabled[i] = not self.leds_enabled[i]
             while time.time() - t < 0.4:
                 self.flash_LEDs()
-
+        self.disable_LEDs()
 
