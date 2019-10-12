@@ -15,6 +15,8 @@ class Rule:
 
 class State:
     init = 0
+    read1= 2
+    read2= 3  # need two reads to represent both state where kpc is not initialized and state where it actually reads
     read_password = 1
     read_active = 2
     logout = 3
@@ -113,7 +115,10 @@ class KPC_Agent:
     def flash_leds(self):
         self.led.flash_LEDs()
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9636fba422fdf134da95bb3d484103bb97247722
     def exit_action(self):
         self.led.turn_off_LEDs()
 
