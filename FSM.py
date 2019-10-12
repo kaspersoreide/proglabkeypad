@@ -12,14 +12,11 @@ class Rule:
 
 class State:
     init = 0
-<<<<<<< HEAD
     read1= 2
     read2= 3  # need two reads to represent both state where kpc is not initialized and state where it actually reads
-=======
     read_password = 1
     read_active = 2
     logout = 3
->>>>>>> cbafeb85315d25d3a8826592d354fd701e3533f6
     verify = 4
     active = 5
     finished = 6
