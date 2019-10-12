@@ -9,10 +9,11 @@ class Rule:
 
 class State:
     init = 0
-    read= 1
-    verify = 2
-    active = 3
-    finished = 4
+    read1= 1
+    read2= 3  # need two reads to represent both state where kpc is not initialized and state where it actually reads
+    verify = 4
+    active = 5
+    finished = 6
 
 
 class Signal:
@@ -38,25 +39,27 @@ class Signal:
 
 
 class KPC_Agent:
-
-    def __init(self, keypad):
-        self.fsm = FSM()
-        self.keypad = keypad
+    def __init(self):
+        self.fsm = FSM(self)
+        self.keypad = Keypad()
         self.led = LEDboard()
         self.file_name = "passord.txt"
         self.password_buffer = ""
         self.override_signal = None
-        self.led_id = ""
-        self.led_duration = ""# har vi tall eller strings som kommer inn her?
+        self.led_id = 0
+        self.led_duration = 0
         self.Legal_numbers =['0','1','2','3','4','5','6','7','8','9']
 
     def init_passcode_entry(self):
-        self.password_buffer = ""
-        self.led_id= ""
-        self.led_duration = ""
-        self.override_signal = None
+        self.reset_agent()
         self.led.flash_LEDs()
         #flash
+
+    def reset_agent(self):
+        self.password_buffer = ""
+        self.led_id = ""
+        self.led_duration = ""
+        self.override_signal = None
 
     def get_next_signal(self):
         if self.override_signal:
@@ -73,13 +76,9 @@ class KPC_Agent:
             self.override_signal+="N"
         self.init_passcode_entry()
 
-<<<<<<< HEAD
-    def add_
-=======
     def add_next_digit(self, digit):
         if digit in self.Legal_numbers:
-            self.password_buffer+= digit
->>>>>>> a217a5a4288e8bd0e86b23ceda3422524cddea3b
+            self.password_buffer += digit
 
     def validate_passcode_change(self):
         validate = True
@@ -99,7 +98,7 @@ class KPC_Agent:
             return password
 
     def light_one_led(self):
-
+        self.led.lid_ldur(self.led_id, self.led_duration)
 
     def flash_leds(self):
         self.led.flash_LEDs()
@@ -115,16 +114,21 @@ class KPC_Agent:
 
 
 class FSM:
-    def __init__(self, agent, state):
+    def __init__(self, agent):
         self.agent = agent
         self.rule_list = []
         self.signal = None
-        self.state = state.init
+        self.state = State.init
 
     def setup_rules(self):
         self.rule_list = [
-            Rule(Signal.all_symbols, State.init, State.read, KPC_Agent.init_passcode_entry),
-            Rule(Signal.all_digits, State.read, State.read, KPC_Agent.add_next),
+            Rule(Signal.all_symbols, State.init, State.read1, self.agent.init_passcode_entry),
+            Rule(Signal.all_digits, State.read1, State.read1, self.agent.add_next_digit),
+            Rule(Signal.verify, State.read1, State.verify, self.agent.verify_login),
+            Rule(Signal.all_symbols, State.read1, State.init, self.agent.reset_agent),
+            Rule(Signal.done, State.verify, State.active, self.agent.verify_login),
+            Rule(Signal.all_symbols, State.verify, State.init, self.agent.reset_agent),
+
         ]
 
     def add_rule(self, rule):
@@ -134,7 +138,6 @@ class FSM:
         return KPC_Agent.get_next_signal
 
     def run_rules(self, state, signal):
-
         for rule in self.rule_list:
             if rule.state == state and rule.signal == signal:
                 self.state = rule.next_state
@@ -146,4 +149,4 @@ class FSM:
 
 
     def fire_rule(self, rule):
-        KPC_Agent.do_action(rule.actuion)
+        KPC_Agent.do_action(rule.action)
