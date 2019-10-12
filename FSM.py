@@ -1,4 +1,5 @@
 from keypad import Keypad
+from ledboard import *
 class Rule:
     def __init__(self, signal, state, next_state, action):
         self.state = state
@@ -33,10 +34,10 @@ class Signal:
 
 class KPC_Agent:
 
-    def __init(self):
+    def __init(self, keypad):
         self.fsm = FSM()
-        self.keypad = 0
-        self.led = 0
+        self.keypad = keypad
+        self.led = LEDboard()
         self.file_name = "passord.txt"
         self.password_buffer = ""
         self.override_signal = None
@@ -49,23 +50,27 @@ class KPC_Agent:
         self.led_id= ""
         self.led_duration = ""
         self.override_signal = None
+        self.led.flash_LEDs()
         #flash
 
-    def get_next_signal(self, keypad):
+    def get_next_signal(self):
         if self.override_signal:
             result = self.override_signal
             self.override_signal = None
             return result
         else:
-            return keypad.poll_buttons()
+            return self.keypad.poll_buttons()
 
     def verify_login(self):
         if self.password_buffer == self.read_password(self.file_name): ##lese fra fil
             self.override_signal += "Y"
         else:
             self.override_signal+="N"
+        self.init_passcode_entry()
 
-    def add_next_
+    def add_next_digit(self, digit):
+        if digit in self.Legal_numbers:
+            self.password_buffer+= digit
 
     def validate_passcode_change(self):
         validate = True
@@ -83,18 +88,19 @@ class KPC_Agent:
             password = password_file.read().strip()
             print(password)
             return password
-    def do_
 
     def light_one_led(self):
 
 
     def flash_leds(self):
+        self.led.flash_LEDs()
 
 
     def twinkle_led(self):
 
 
     def exit_action(self):
+        self.led.turn_off_LEDs()
 
 
 
