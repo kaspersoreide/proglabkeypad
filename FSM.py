@@ -9,7 +9,7 @@ class Rule:
 
 class State:
     init = 0
-    read1= 1
+    read1= 2
     read2= 3  # need two reads to represent both state where kpc is not initialized and state where it actually reads
     verify = 4
     active = 5
@@ -102,10 +102,6 @@ class KPC_Agent:
 
     def flash_leds(self):
         self.led.flash_LEDs()
-
-
-    def twinkle_led(self):
-
 
     def exit_action(self):
         self.led.turn_off_LEDs()
