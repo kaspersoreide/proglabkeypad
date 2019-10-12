@@ -33,19 +33,28 @@ class LEDboard:
     def disable_LEDs(self):
         for i in range(6):
             self.leds_enabled[i] = False
-
-ledboard = LEDboard()
-ledboard.enable_LEDs()
-t = time.time()
-b = True
-while True:
-    dt = time.time() - t
-    ledboard.flash_LEDs()
-    if (dt > 1.0):
-        if b:
-            ledboard.disable_LEDs()
-            b = False
-        else:
-            ledboard.enable_LEDs()
-            b = True
+    def lid_ldur(self, index, duration):
+        self.disable_LEDs()
+        self.leds_enabled[index] = True
         t = time.time()
+        while time.time() - t < duration:
+            self.flash_LEDs()
+
+    def power_up(self):
+        self.disable_LEDs()
+        for i in range(6):
+            t = time.time()
+            self.leds_enabled[i] = True
+            while time.time() - t < 0.7:
+                self.flash_LEDs()
+
+    def wrong(self):
+        self.disable_LEDs()
+        for i in range(3):
+            t = time.time()
+            for i in range(6):
+                self.leds_enabled[i] = not self.leds_enabled[i]
+            while time.time() - t < 0.4:
+                self.flash_LEDs()
+
+
