@@ -1,19 +1,25 @@
 from keypad import Keypad
 from ledboard import *
 class Rule:
-    def __init__(self, signal, state, next_state, action):
+    def __init__(self, state, next_state, signal,  action):
         self.state = state
         self.next_state= next_state
         self.action = action
         self.signal = signal
 
+    def do_action(self):
+        return self.action
+
 class State:
     init = 0
-    read1= 1
-    read2= 3  # need two reads to represent both state where kpc is not initialized and state where it actually reads
+    read_password = 1
+    read_active = 2
+    logout = 3
     verify = 4
     active = 5
     finished = 6
+    time = 7
+    led = 8
 
 
 class Signal:
@@ -26,7 +32,7 @@ class Signal:
         return ord("0")<=ord(signal)<=ord("9")
 
     @staticmethod
-    def verify(signal):
+    def asterisk(signal):
         return signal == "*"
 
     @staticmethod
@@ -80,7 +86,7 @@ class KPC_Agent:
         if digit in self.Legal_numbers:
             self.password_buffer += digit
 
-    def validate_passcode_change(self):
+    def validate_password_change(self):
         validate = True
         if len(self.password_buffer)<4:
             validate = False
@@ -110,6 +116,9 @@ class KPC_Agent:
     def exit_action(self):
         self.led.turn_off_LEDs()
 
+    def do_nothing(self):
+        pass
+
 
 
 
@@ -122,12 +131,24 @@ class FSM:
 
     def setup_rules(self):
         self.rule_list = [
-            Rule(Signal.all_symbols, State.init, State.read1, self.agent.init_passcode_entry),
-            Rule(Signal.all_digits, State.read1, State.read1, self.agent.add_next_digit),
-            Rule(Signal.verify, State.read1, State.verify, self.agent.verify_login),
-            Rule(Signal.all_symbols, State.read1, State.init, self.agent.reset_agent),
-            Rule(Signal.done, State.verify, State.active, self.agent.verify_login),
-            Rule(Signal.all_symbols, State.verify, State.init, self.agent.reset_agent),
+            Rule(State.init, State.read_password, Signal.all_symbols, self.agent.init_passcode_entry),
+            Rule(State.read_password, State.read_password, Signal.all_digits, self.agent.add_next_digit),
+            Rule(State.read_password, State.verify, Signal.asterisk, self.agent.verify_login),
+            Rule(State.read_password, State.init, Signal.all_symbols, self.agent.reset_agent),
+
+            Rule(State.verify, State.active, Signal.done, self.agent.verify_login),
+            Rule(State.verify, State.init, Signal.all_symbols, self.agent.reset_agent),
+
+            Rule(State.active, State.read_active, Signal.asterisk, self.agent.reset_agent),
+            Rule(State.active, State.logout, Signal.hash, self.agent.exit_action),
+            Rule(State.active, State.led, Signal.all_symbols, self.agent.do_nothing),
+
+            Rule(State.read_active, State.read_active, Signal.all_digits, self.agent.add_next_digit),
+            Rule(State.read_active, State.active, Signal.asterisk, self.agent.verify_password_change),
+            Rule(State.read_active, State.active, Signal.all_symbols, self.agent.reset_agent),
+
+
+
 
         ]
 
@@ -135,7 +156,7 @@ class FSM:
         self.rule_list.append(rule)
 
     def get_next_signal(self):
-        return KPC_Agent.get_next_signal
+        return self.agent.get_next_signal
 
     def run_rules(self, state, signal):
         for rule in self.rule_list:
@@ -149,4 +170,4 @@ class FSM:
 
 
     def fire_rule(self, rule):
-        KPC_Agent.do_action(rule.action)
+       rule.do_action()
